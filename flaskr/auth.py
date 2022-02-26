@@ -74,7 +74,7 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = get_db().execute(
-            'SELECT id, username, perms FROM Users WHERE id = ?', (user_id,)
+            'SELECT id, username, password, perms FROM Users WHERE id = ?', (user_id,)
         ).fetchone()
 
 
