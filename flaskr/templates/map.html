@@ -33,7 +33,7 @@
 <body>
     <div id="map" class="map"></div>
     <p id="demo"></p>
-    <script type="text/javascript" >
+    <script type="text/javascript">
 
         var map = new ol.Map({
             target: 'map',
@@ -47,6 +47,14 @@
                 zoom: 4
             })
         });
+
+        var getStyle = new ol.style.Style({
+            image: new ol.style.Icon({
+                scale: 1,
+                anchor: [0.5, 1],
+                src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
+            })
+        })
         var markersStatic = new ol.layer.Vector({
             source: new ol.source.Vector(),
             style: new ol.style.Style({
@@ -58,25 +66,20 @@
         });
         var markerDynamic = new ol.layer.Vector({
             source: new ol.source.Vector(),
-            style: new ol.style.Style({
-                image: new ol.style.Icon({
-                    anchor: [0.5, 1],
-                    src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1',
-                })
-            }
-            )
+            style: function () { return getStyle; },
+
         });
         map.addLayer(markersStatic);
         map.addLayer(markerDynamic);
 
-        
+
         var mydata = data;
         var coordinates = [];
         for (let i = 0; i <= mydata.length; i++) {
             try {
-            var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([mydata[i].fields.geographical_coordinates[1],mydata[i].fields.geographical_coordinates[0]])));
-             markersStatic.getSource().addFeature(marker);
-            coordinates.push([mydata[i].fields.geographical_coordinates[1],mydata[i].fields.geographical_coordinates[0]])
+                var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])));
+                markersStatic.getSource().addFeature(marker);
+                coordinates.push([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])
             } catch (error) {
                 //ignore
             }
@@ -91,6 +94,21 @@
             var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
             markerDynamic.getSource().addFeature(marker2);
 
+        });
+        map.getView().on('propertychange', function (e) {
+            switch (e.key) {
+                case 'resolution':
+                    var getStyle = new ol.style.Style({
+                        image: new ol.style.Icon({
+                            scale: 1.2*(Math.log(e.oldValue))/Math.log(e.oldValue*10),
+                            anchor: [0.5, 1],
+                            src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
+                        })
+                    })
+                    markerDynamic.setStyle(getStyle);
+                    console.log(1 / e.oldValue);
+                    break;
+            }
         });
 
     </script>
