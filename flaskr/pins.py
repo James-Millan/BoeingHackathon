@@ -87,8 +87,10 @@ def pin_add():
                 print(e)
                 error = "These coordinates aren't numbers!!!"
         
-        flash(error)
+        if error is not None:
+            flash(error)
 
+    # can just have a popup that says pin added successfully
     return render_template("pins/add.html")
 
 
@@ -103,9 +105,15 @@ def get_all():
         out["result"].append({field: value for field, value in zip(pin.keys(), pin)})
     return out
 
-@bp.route("/get")
-def get_single(lat, long):
-    pins = get_all()
-    print(pins)
+#@bp.route("/get")
+#def get_single(lat, long):
+ #   pins = get_all()
+  #  print(pins)
+   # # pins.lookup(lat) INTERSECTION pins.lookup(long) > 0
+    #if lat in pins['result'] & long in pins['result']:
+     #   return True
+   # else:
+    #    return False
 
-    
+
+
