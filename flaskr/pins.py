@@ -102,4 +102,10 @@ def get_all():
     for pin in pins:
         out["result"].append({field: value for field, value in zip(pin.keys(), pin)})
     return out
+
+@bp.route("/get")
+def get_single(lat, long):
+    pins = get_all()
+    print(pins)
+
     
