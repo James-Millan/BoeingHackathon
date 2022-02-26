@@ -18,7 +18,7 @@
     </ul>
     <ul class="hiddenBullet">
     {% if g.user %}
-      <li><span>{{ g.user['username'] }}</span>
+      <li><a href="{{ url_for('users.user_view_name', uname=g.user['username']) }}">{{ g.user['username'] }}</a>
       <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
     {% else %}
       <li>Create an account here <br>
