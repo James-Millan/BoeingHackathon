@@ -6,7 +6,7 @@
 {% block content %}
 
 <h2>{{ user.username }}'s profile</h2>
-
+<a href="{{ url_for('users.user_edit') }} ">Edit profile</a>
 <div class="bio">
   <h3>BIO</h3>
   <p>{{ user.content }}</p>

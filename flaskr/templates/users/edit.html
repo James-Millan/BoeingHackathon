@@ -1,3 +1,10 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Edit{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
 {% for message in get_flashed_messages() %}
 <div class="flash">{{ message }}</div>
 {% endfor %}
@@ -8,3 +15,5 @@
     <textarea id="content" name="content" rows="20" cols="80">{{ user["content"] }}</textarea>
     <input type="submit" />
 </form>
+{% endblock %}
+
