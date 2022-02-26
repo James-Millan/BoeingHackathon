@@ -24,6 +24,7 @@ label {
 }
 label:after { content: ": " }
 
+
 .noDeco {
     text-decoration: none;
 }
