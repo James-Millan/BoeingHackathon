@@ -6,15 +6,51 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         .map {
-            height: 400px;
+            height: 600px;
             width: 100%;
         }
         .popup{
-             border-radius: 5px;
+            border-radius: 5px;
             border: 1px solid grey;
             background-color: rgba(255, 255, 255, 0.9);
             padding: 2px;
+            border-radius: 10px;
+            border: 1px solid #cccccc;
+            bottom: 12px;
+            left: -50px;
+            min-width: 280px
         }
+
+        .popup:after, .ol-popup:before {
+        top: 100%;
+        border: solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+      }
+      .popup:after {
+        border-top-color: white;
+        border-width: 10px;
+        left: 48px;
+        margin-left: -10px;
+      }
+      .popup:before {
+        border-top-color: #cccccc;
+        border-width: 11px;
+        left: 48px;
+        margin-left: -11px;
+      }
+      .popup-closer {
+        text-decoration: none;
+        position: absolute;
+        top: 2px;
+        right: 8px;
+      }
+      .popup-closer:after {
+        content: "✖";
+      }
     </style>
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/build/ol.js"></script>
     <title>OpenLayers example</title>
@@ -42,7 +78,7 @@
       <a href="#" id="popup-closer" class="ol-popup-closer"></a>
       <div id="popup-content"></div>
     </div>
-
+{% endblock %}
 
 
     <script type="text/javascript">
@@ -102,7 +138,7 @@
             target: 'map',
             view: new ol.View({
                 center: ol.proj.fromLonLat([37.41, 8.82]),
-                zoom: 4
+                zoom: 2
             })
         });
         var markers = new ol.layer.Vector({
@@ -144,9 +180,69 @@
           content.innerHTML = '<p>You clicked here:</p>';
           overlay.setPosition(coordinate);
         });
+
+
+        const vector = new ol.layer.VectorLayer({
+            source: new ol.source.VectorSource(),
+            style: new ol.style.Style({
+            fill: new ol.style.Fill({
+            color: 'rgba(255, 255, 255, 0.2)',
+         }),
+        stroke: new ol.style.Stroke({
+            color: '#ffcc33',
+            width: 2,
+        }),
+        image: new ol.style.CircleStyle({
+            radius: 7,
+            fill: new ol.style.Fill({
+            color: '#ffcc33',
+        }),
+     }),
+  }),
+});
+
+
+
+        const ExampleDraw = {
+            init: function () {
+            ol.map.addInteraction(this.Point);
+            this.Point.setActive(false);
+            },
+            Point: new ol.interaction.Draw({
+            source: vector.getSource(),
+            type: 'Point',
+            })
+
+            getActive: function () {
+                return this.activeType ? this[this.activeType].getActive() : false;
+            },
+            setActive: function (active) {
+                const type = optionsForm.elements['draw-type'].value;
+                if (active) {
+                this.activeType && this[this.activeType].setActive(false);
+                <t></t>his[type].setActive(true);
+                this.activeType = type;
+                } else {
+                    this.activeType && this[this.activeType].setActive(false);
+                    this.activeType = null;
+                },
+            };
+        ExampleDraw.init();
+        ExampleDraw.setActive(true);
+
+
+
+
+
+
+
+        //snap stuff
+        const snap = new ol.interaction.Snap({
+        source: vector.getSource(),
+}       );
+map.addInteraction(snap);
     </script>
 
     <div id='js-map' class='map'></div>
     <script src='{{ url_for("static", filename="main.js") }}'></script>
     <script src='{{ url_for("static", filename="libs/v6.12.0-dist/ol.js") }}'></script>
-{% endblock %}
