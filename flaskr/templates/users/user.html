@@ -12,6 +12,13 @@
   <p>{{ user.content }}</p>
 </div>
 
+<h2>Pins Submitted</h2>
+{% for pin in pins %}
+<h3>{{ pin.pinName }}</h3>
+<p>Latitude: {{ pin.lat }}, Longitude: {{ pin.long }}</p>
+<p>Submitted by {{ user.username }}</p>
+{% endfor %}
+
 
 {% for message in get_flashed_messages() %}
 <div class="flash">{{ message }}</div>
