@@ -71,15 +71,17 @@
 
         
         var mydata = data;
+        var coordinates = [];
         for (let i = 0; i <= mydata.length; i++) {
             try {
-                var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([mydata[i].fields.geographical_coordinates[1],mydata[i].fields.geographical_coordinates[0]])));
+            var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([mydata[i].fields.geographical_coordinates[1],mydata[i].fields.geographical_coordinates[0]])));
              markersStatic.getSource().addFeature(marker);
+            coordinates.push([mydata[i].fields.geographical_coordinates[1],mydata[i].fields.geographical_coordinates[0]])
             } catch (error) {
                 //ignore
             }
         }
-
+        console.log(coordinates)
         var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
         markersStatic.getSource().addFeature(marker);
         map.on('click', function (evt) {
