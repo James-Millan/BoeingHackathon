@@ -46,7 +46,7 @@
                 zoom: 4
             })
         });
-        var markers = new ol.layer.Vector({
+        var markersStatic = new ol.layer.Vector({
             source: new ol.source.Vector(),
             style: new ol.style.Style({
                 image: new ol.style.Icon({
@@ -55,17 +55,31 @@
                 })
             })
         });
-        map.addLayer(markers);
+        var markerDynamic = new ol.layer.Vector({
+            source: new ol.source.Vector(),
+            style: new ol.style.Style({
+                image: new ol.style.Icon({
+                    anchor: [0.5, 1],
+                    src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
+                })
+            })
+        });
+        map.addLayer(markersStatic);
+        map.addLayer(markerDynamic);
 
         var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
-        markers.getSource().addFeature(marker);
+        markersStatic.getSource().addFeature(marker);
         map.on('click', function (evt) {
             console.info(evt.pixel);
             console.info(map.getPixelFromCoordinate(evt.coordinate));
             console.info(ol.proj.toLonLat(evt.coordinate));
             var coords = ol.proj.toLonLat(evt.coordinate);
+            markerDynamic.clearMarkers();
             var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
-            markers.getSource().addFeature(marker2);
+            markerDynamic.getSource().addFeature(marker2);
+            markerDynamic.setVisible(false);
+            markerDynamic.setVisible(true);
         });
+
     </script>
 </body>
