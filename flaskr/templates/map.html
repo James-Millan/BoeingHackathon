@@ -38,6 +38,7 @@
     <p id="demo"></p>
 
     <div id="popup" class="ol-popup">
+      <form></form>
       <a href="#" id="popup-closer" class="ol-popup-closer"></a>
       <div id="popup-content"></div>
     </div>
@@ -56,6 +57,25 @@
         /**
          * Create an overlay to anchor the popup to the map.
          */
+         const style = new ol.style.Style({
+            fill: new ol.style.Fill({
+            color: "#eeeeee"
+            })
+        });
+
+        const geoLayer = new ol.layer.Vector({
+            background: "#000075",
+            source: new ol.source.Vector({
+            url: "https://openlayers.org/data/vector/ecoregions.json",
+            format: new ol.format.GeoJSON()
+            }),
+            style: function (feature) {
+            const color = feature.get("COLOR") || "#eeeeee";
+            style.getFill().setColor(color);
+            return style;
+            }
+        });
+
         const overlay = new ol.Overlay({
           element: container,
           autoPan: {
@@ -77,11 +97,7 @@
 
         var map = new ol.Map({
             target: 'map',
-            layers: [
-                new ol.layer.Tile({
-                    source: new ol.source.OSM()
-                })
-            ],
+            layers: [geoLayer,],
             overlays: [overlay],
             target: 'map',
             view: new ol.View({
