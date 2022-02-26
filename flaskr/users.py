@@ -37,7 +37,11 @@ def user_view_id(uid: int):
     if error is not None:
         flash(error)
 
-    return render_template("users/user.html", user=user)
+    pins = db.execute(
+        'SELECT * FROM Pins WHERE userID = ?', (uid,)
+    ).fetchall()
+
+    return render_template("users/user.html", user=user, pins=pins)
 
 
 @bp.route("/user/<string:uname>")
@@ -54,9 +58,11 @@ def user_view_name(uname: str):
     if user is None:
         error = "User doesn't exist!"
     
-    if error is not None:
-        flash(error)
-    return render_template("users/user.html", user=user)
+    pins = db.execute(
+        'SELECT * FROM Pins WHERE userID = ?', (uid,)
+    ).fetchall()
+
+    return render_template("users/user.html", user=user, pins=pins)
 
 
 @bp.route("/user/edit", methods=("GET", "POST"))
