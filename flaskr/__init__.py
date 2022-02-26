@@ -28,7 +28,6 @@ def create_app(test_config=None):
     @app.route('/hello')
     def hello():
         return flask.render_template('base.html')
-    
     from . import db
     db.init_app(app)
 
