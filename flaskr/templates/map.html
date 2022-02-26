@@ -82,9 +82,6 @@
         var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
         markersStatic.getSource().addFeature(marker);
         map.on('click', function (evt) {
-            console.info(evt.pixel);
-            console.info(map.getPixelFromCoordinate(evt.coordinate));
-            console.info(ol.proj.toLonLat(evt.coordinate));
             var coords = ol.proj.toLonLat(evt.coordinate);
             var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
             markerDynamic.getSource().addFeature(marker2);
@@ -95,14 +92,13 @@
                 case 'resolution':
                     var getStyle = new ol.style.Style({
                         image: new ol.style.Icon({
-                            scale: 1.8*(Math.log(e.oldValue)/Math.log(e.oldValue*10)),
+                            scale: 1.8*(Math.log(e.oldValue*8)/Math.log(e.oldValue*20)), //will go a bit crazy at extreme zoom
                             anchor: [0.5, 1],
                             src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
                         })
                     })
                     markerDynamic.setStyle(getStyle);
                     markersStatic.setStyle(getStyle);
-                    console.log(1 / e.oldValue);
                     break;
             }
         });
