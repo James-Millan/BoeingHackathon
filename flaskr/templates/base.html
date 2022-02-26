@@ -18,8 +18,9 @@
 <body>
     <h2>My Map</h2>
     <div id="map" class="map"></div>
-    <script src="main.js"></script>
+    <p id="demo"></p>
     <script type="text/javascript">
+
         var map = new ol.Map({
             target: 'map',
             layers: [
@@ -37,7 +38,7 @@
             style: new ol.style.Style({
                 image: new ol.style.Icon({
                     anchor: [0.5, 1],
-                    src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fwww.pngall.com%2Fwp-content%2Fuploads%2F2017%2F05%2FMap-Marker-PNG-Picture-180x180.png&f=1&nofb=1'
+                    src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
                 })
             })
         });
@@ -45,6 +46,14 @@
 
         var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
         markers.getSource().addFeature(marker);
+        map.on('click', function (evt) {
+            console.info(evt.pixel);
+            console.info(map.getPixelFromCoordinate(evt.coordinate));
+            console.info(ol.proj.toLonLat(evt.coordinate));
+            var coords = ol.proj.toLonLat(evt.coordinate);
+            var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
+            markers.getSource().addFeature(marker2);
+        });
     </script>
 </body>
 
