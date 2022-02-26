@@ -12,27 +12,28 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/build/ol.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='data.json')}}"></script>
     <title>OpenLayers example</title>
 </head>
 <nav>
-  <h1 class="heading"><a class="noDeco"  href="/">DynaMap</a></h1>
-  <ul class="hiddenBullet">
-    {% if g.user %}
-      <li><span>{{ g.user['username'] }}</span>
-      <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
-    {% else %}
-      <li>Create an account here <br>
-      <a href="{{ url_for('auth.register') }}">Register</a>
-      <li>Already have an account?<br>
-      <a href="{{ url_for('auth.login') }}">Log In</a>
-    {% endif %}
-  </ul>
+    <h1 class="heading"><a class="noDeco" href="/">DynaMap</a></h1>
+    <ul class="hiddenBullet">
+        {% if g.user %}
+        <li><span>{{ g.user['username'] }}</span>
+        <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+            {% else %}
+        <li>Create an account here <br>
+            <a href="{{ url_for('auth.register') }}">Register</a>
+        <li>Already have an account?<br>
+            <a href="{{ url_for('auth.login') }}">Log In</a>
+            {% endif %}
+    </ul>
 </nav>
 
 <body>
     <div id="map" class="map"></div>
     <p id="demo"></p>
-    <script type="text/javascript">
+    <script type="text/javascript" >
 
         var map = new ol.Map({
             target: 'map',
@@ -60,12 +61,24 @@
             style: new ol.style.Style({
                 image: new ol.style.Icon({
                     anchor: [0.5, 1],
-                    src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
+                    src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1',
                 })
-            })
+            }
+            )
         });
         map.addLayer(markersStatic);
         map.addLayer(markerDynamic);
+
+        
+        var mydata = data;
+        for (let i = 0; i <= mydata.length; i++) {
+            try {
+                var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([mydata[i].fields.geographical_coordinates[1],mydata[i].fields.geographical_coordinates[0]])));
+             markersStatic.getSource().addFeature(marker);
+            } catch (error) {
+                //ignore
+            }
+        }
 
         var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
         markersStatic.getSource().addFeature(marker);
@@ -74,11 +87,9 @@
             console.info(map.getPixelFromCoordinate(evt.coordinate));
             console.info(ol.proj.toLonLat(evt.coordinate));
             var coords = ol.proj.toLonLat(evt.coordinate);
-            markerDynamic.clearMarkers();
             var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
             markerDynamic.getSource().addFeature(marker2);
-            markerDynamic.setVisible(false);
-            markerDynamic.setVisible(true);
+
         });
 
     </script>
