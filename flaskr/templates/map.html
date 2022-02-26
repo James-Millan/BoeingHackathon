@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         .map {
-            height: 400px;
+            height: 600px;
             width: 100%;
         }
         .popup{
@@ -100,7 +100,7 @@
             target: 'map',
             view: new ol.View({
                 center: ol.proj.fromLonLat([37.41, 8.82]),
-                zoom: 4
+                zoom: 2
             })
         });
         var markers = new ol.layer.Vector({
