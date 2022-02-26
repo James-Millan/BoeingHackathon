@@ -9,6 +9,19 @@ from flaskr.db import get_db
 
 bp = Blueprint("users", __name__, url_prefix="/")
 
+
+@bp.route("/user")
+@bp.route("/user/")
+def user_view():
+    user_id = session.get('user_id')
+
+    if user_id is None:
+        flash("Not logged in!")
+        return redirect(url_for("auth.login"))
+    
+    return redirect(url_for("users.user_view_id", uid=user_id))
+
+
 @bp.route("/user/id/<int:uid>")
 def user_view_id(uid: int):
     db = get_db()
@@ -36,6 +49,8 @@ def user_view_name(uname: str):
         'SELECT id, username, password, perms, content FROM Users WHERE username = ?', (uname,)
     ).fetchone()
 
+    print(user["content"])
+
     if user is None:
         error = "User doesn't exist!"
     
@@ -45,15 +60,17 @@ def user_view_name(uname: str):
 
 
 @bp.route("/user/edit", methods=("GET", "POST"))
-def user_edit_view():
+def user_edit():
     user_id = session.get('user_id')
 
     if user_id is None:
         flash("Not logged in!")
         return render_template("index.html")
+    
+    db = get_db()
 
     if request.method == "GET":
-        user = get_db().execute(
+        user = db.execute(
             'SELECT * FROM Users WHERE id = ?', (user_id,)
         ).fetchone()
 
@@ -62,13 +79,17 @@ def user_edit_view():
     elif request.method == "POST":
         content = request.form['content']
 
-        get_db().execute(
+        print(content)
+
+        db.execute(
             "UPDATE Users SET content = ? WHERE id = ?", (content, user_id,)
         )
+        db.commit()
 
-        user = get_db().execute(
-            'SELECT * FROM Users WHERE id = ?', (user_id,)
+        user = db.execute(
+            'SELECT id, username, perms, content FROM Users WHERE id = ?', (user_id,)
         ).fetchone()
 
+        flash("Successful edit!")
         return render_template("users/edit.html", user=user)
 
