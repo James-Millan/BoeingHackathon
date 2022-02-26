@@ -9,12 +9,32 @@
             height: 600px;
             width: 100%;
         }
-        .popup{
+        #popup{
              border-radius: 5px;
             border: 1px solid grey;
             background-color: rgba(255, 255, 255, 0.9);
             padding: 2px;
         }
+        .ol-popup {
+        position: absolute;
+        background-color: white;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #cccccc;
+        bottom: 12px;
+        left: -50px;
+        min-width: 280px;
+      }
+      .ol-popup-closer {
+        text-decoration: none;
+        position: absolute;
+        top: 2px;
+        right: 8px;
+      }
+      .ol-popup-closer:after {
+        content: "✖";
+      }
     </style>
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/build/ol.js"></script>
     <title>OpenLayers example</title>
@@ -38,12 +58,31 @@
     <p id="demo"></p>
 
     <div id="popup" class="ol-popup">
-      <form></form>
-      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-      <div id="popup-content"></div>
+        <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+      <div id="popup-content" >
+          <!--dynamically allocate these from database wrap this in an if for if the content is empty only show the form.
+          -->
+          <div id="content-description">
+              <h2 id="content-heading">Example Heading</h2>
+              <p id="content-text">Example description of some kind of place.</p>
+          </div>
+          <div id="comments">
+              <ul class="hiddenBullet">
+                  <!--dynamic allocation-->
+                  <li>comment 1</li>
+                  <li>comment 2</li>
+                  <li>comment 3</li>
+              </ul>
+          </div>
+          <form id="submission">
+                <label for="Name">Place</label><br>
+                <input type="text" id="Name" name="Name"><br>
+                <label for="desc">Description</label><br>
+                <input type="text" id="desc" name="desc">
+                <input type="submit" value="submit">
+          </form>
+      </div>
     </div>
-
-
 
     <script type="text/javascript">
 
@@ -137,9 +176,14 @@
          */
         map.on('singleclick', function (evt) {
           const coordinate = evt.coordinate;
-          content.innerHTML = '<p>You clicked here:</p>';
           overlay.setPosition(coordinate);
         });
+
+    closer.onclick = function () {
+        overlay.setPosition(undefined);
+        closer.blur();
+        return false;
+    };
     </script>
 
     <div id='js-map' class='map'></div>
