@@ -70,7 +70,10 @@
             format: new ol.format.GeoJSON()
             }),
             style: function (feature) {
-            const color = feature.get("COLOR") || "#eeeeee";
+            //climate = BIO
+            //environment status = NNH
+            //
+            const color = feature.get("COLOR_BIO") || "#eeeeee";
             style.getFill().setColor(color);
             return style;
             }
@@ -84,11 +87,6 @@
             },
           },
         });
-
-        /**
-         * Add a click handler to hide the popup.
-         * @return {boolean} Don't follow the href.
-         */
         window.unload = function () {
           overlay.setPosition(undefined);
           closer.blur();
@@ -139,8 +137,6 @@
          */
         map.on('singleclick', function (evt) {
           const coordinate = evt.coordinate;
-
-
           content.innerHTML = '<p>You clicked here:</p>';
           overlay.setPosition(coordinate);
         });

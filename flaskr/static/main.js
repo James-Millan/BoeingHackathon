@@ -1,4 +1,4 @@
-window.onload = init;
+/*window.onload = init;
 
 function init(){
     const map = new ol.Map({
@@ -40,3 +40,5 @@ function init(){
     console.log(coordinates);
     console.log(layerLines.geometry);
 }
+*/
+
