@@ -25,11 +25,18 @@ def create_app(test_config=None):
         pass
 
     # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return flask.render_template('base.html')
-    
+    @app.route('/')
+    def index():
+        return flask.render_template('index.html')
+
+    @app.route('/map')
+    def map():
+        return flask.render_template('map.html')
+
     from . import db
     db.init_app(app)
+    
+    from . import auth
+    app.register_blueprint(auth.bp)
 
     return app
