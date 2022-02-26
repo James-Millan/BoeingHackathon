@@ -23,3 +23,8 @@ label {
   display: block;
 }
 label:after { content: ": " }
+
+
+.noDeco {
+    text-decoration: none;
+}

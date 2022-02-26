@@ -14,9 +14,22 @@
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/build/ol.js"></script>
     <title>OpenLayers example</title>
 </head>
+<nav>
+  <h1 class="heading"><a class="noDeco"  href="/">DynaMap</a></h1>
+  <ul class="hiddenBullet">
+    {% if g.user %}
+      <li><span>{{ g.user['username'] }}</span>
+      <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+    {% else %}
+      <li>Create an account here <br>
+      <a href="{{ url_for('auth.register') }}">Register</a>
+      <li>Already have an account?<br>
+      <a href="{{ url_for('auth.login') }}">Log In</a>
+    {% endif %}
+  </ul>
+</nav>
 
 <body>
-    <h2>My Map</h2>
     <div id="map" class="map"></div>
     <p id="demo"></p>
     <script type="text/javascript">
