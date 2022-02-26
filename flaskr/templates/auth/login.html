@@ -5,6 +5,9 @@
 {% endblock %}
 
 {% block content %}
+{% if g.user %}
+  <p>YOU ARE ALREADY LOGGED IN</p>
+{% else %}
   <form method="post" class="login">
     <label for="username" >Username</label>
     <input name="username" id="username" required>
@@ -13,4 +16,5 @@
     <input type="password" name="password" id="password" required>
     <input type="submit" class="login-label" value="Log In">
   </form>
+{% endif %}
 {% endblock %}
