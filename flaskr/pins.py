@@ -39,9 +39,10 @@ def pin_add():
     if request.method == 'POST':
         error = None
 
-        longitude = request.form['longitude']
-        latitude = request.form['latitude']
-        pin_name = request.form['pin_name']
+        longitude = request.form['long']
+        latitude = request.form['lat']
+        pin_name = request.form['Name']
+        desc = request.form['desc']
 
         if not longitude:
             error = "Longitude is required!"
@@ -49,7 +50,8 @@ def pin_add():
             error = "Latitude is required!"
         if not pin_name:
             error = "Pin name is required!"
-
+        if not desc:
+            desc = ""
         if error is None:
             try:
                 db = get_db()
@@ -71,7 +73,18 @@ def pin_add():
                     (user_id, longitude, latitude, pin_name,),
                 )
                 db.commit()
+                pin = db.execute(
+                    "SELECT id FROM Pins WHERE pinName = ? AND userID = ?",
+                    (pin_name, user_id)
+                ).fetchone()
+                print(pin)
+                pid = int(pin['id'])
+                db.execute(
+                    "INSERT INTO Contributions (userID, pinID, content) VALUES (?, ?, ?)",
+                    (user_id, pid, desc)
+                )
             except TypeError as e:
+                print(e)
                 error = "These coordinates aren't numbers!!!"
         
         flash(error)

@@ -74,11 +74,15 @@
                   <li>comment 3</li>
               </ul>
           </div>
-          <form id="submission">
+          <form id="submission" method="post" action="{{ url_for('pins.pin_add') }}">
                 <label for="Name">Place</label><br>
                 <input type="text" id="Name" name="Name"><br>
                 <label for="desc">Description</label><br>
                 <input type="text" id="desc" name="desc">
+                <label for="lat" class="hidden">lat</label><br>
+                <input type="text" id="lat" class="hidden" name="lat"><br>
+                <label for="long" class="hidden">long</label><br>
+                <input type="text" class="hidden" id="long" name="long">
                 <input type="submit" value="submit">
           </form>
       </div>
@@ -162,6 +166,10 @@
             console.info(map.getPixelFromCoordinate(evt.coordinate));
             console.info(ol.proj.toLonLat(evt.coordinate));
             var coords = ol.proj.toLonLat(evt.coordinate);
+            let lat = document.getElementById('lat');
+            let long = document.getElementById('long');
+            lat.setAttribute('value', coords[0]);
+            long.setAttribute('value', coords[1]);
             var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
             markers.getSource().addFeature(marker2);
         });
