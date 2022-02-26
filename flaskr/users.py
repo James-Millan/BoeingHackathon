@@ -58,4 +58,17 @@ def user_edit_view():
         ).fetchone()
 
         return render_template("users/edit.html", user=user)
+    
+    elif request.method == "POST":
+        content = request.form['content']
+
+        get_db().execute(
+            "UPDATE Users SET content = ? WHERE id = ?", (content, user_id,)
+        )
+
+        user = get_db().execute(
+            'SELECT * FROM Users WHERE id = ?', (user_id,)
+        ).fetchone()
+
+        return render_template("users/edit.html", user=user)
 
