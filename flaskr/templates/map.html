@@ -79,6 +79,10 @@
                 <input type="text" id="Name" name="Name"><br>
                 <label for="desc">Description</label><br>
                 <input type="text" id="desc" name="desc">
+                <label for="lat" class="hidden">Latitude</label>
+                <input type="text" class="hidden" value="0" id="lat" name="lat">
+                <label for="long" class="hidden">Longitude</label>
+                <input type="text" class="hidden" value="0" id="long" name="long">
                 <input type="submit" value="submit">
           </form>
       </div>
@@ -111,8 +115,7 @@
             style: function (feature) {
             //climate = BIO
             //environment status = NNH
-            //
-            const color = feature.get("COLOR_BIO") || "#eeeeee";
+            const color = feature.get("COLOR_NNH") || "#eeeeee";
             style.getFill().setColor(color);
             return style;
             }
@@ -162,6 +165,11 @@
             console.info(map.getPixelFromCoordinate(evt.coordinate));
             console.info(ol.proj.toLonLat(evt.coordinate));
             var coords = ol.proj.toLonLat(evt.coordinate);
+            lat = document.getElementById('lat');
+            long = document.getElementById('long');
+            console.log(coords[0]);
+            lat.setAttribute("value", coords[0]);
+            long.setAttribute("value", coords[1]);
             var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
             markers.getSource().addFeature(marker2);
         });

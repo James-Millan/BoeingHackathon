@@ -36,3 +36,7 @@ label:after { content: ": " }
     top: 0;
     text-align: right;
 }
+
+.hidden {
+    display: none;
+}
