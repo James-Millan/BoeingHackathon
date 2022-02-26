@@ -26,8 +26,8 @@ def register():
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO Users (username, password, perms, content) VALUES (?, ?, ?)",
-                    (username, generate_password_hash(password), 0, ""),
+                    "INSERT INTO Users (username, password, perms, content) VALUES (?, ?, ?, ?)",
+                    (username, generate_password_hash(password), 0, "",),
                 )
                 db.commit()
             except db.IntegrityError:
