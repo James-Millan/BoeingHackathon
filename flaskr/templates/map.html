@@ -81,7 +81,6 @@
                 //ignore
             }
         }
-        console.log(coordinates)
         var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
         markersStatic.getSource().addFeature(marker);
         map.on('click', function (evt) {
