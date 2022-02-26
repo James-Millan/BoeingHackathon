@@ -1,11 +1,4 @@
-<!doctype html>
-<head>
-  <title>{% block title %}{% endblock %} - Flaskr</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap" rel="stylesheet">
-</head>
+{% extends 'base.html' %}
 <body>
   <nav>
   <h1 class="heading"><a class="noDeco"  href="/">DynaMap</a></h1>

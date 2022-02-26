@@ -17,6 +17,11 @@ font-family: 'IBM Plex Sans', sans-serif;
   display: block;
 }
 
+.map {
+  height: 400px;
+  width: 100%;
+}
+
 label {
   color: #B4886B;
   font-weight: bold;
