@@ -1,0 +1,92 @@
+import functools
+
+from flask import (
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
+)
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from flaskr.db import get_db
+
+bp = Blueprint("pins", __name__, url_prefix="/pin")
+
+
+@bp.route("/<int:pid>")
+def pin_read(pid: int):
+    db = get_db()
+    error = None
+
+    pin = db.execute(
+        'SELECT id, userID, long, lat, pinName FROM Pins WHERE id = ?', (pid,)
+    ).fetchone()
+
+    if pin is None:
+        error = "Pin doesn't exist!"
+    
+    if error is not None:
+        flash(error)
+
+    return render_template("pins/pin.html", pin=pin)
+
+
+@bp.route("/add", methods=("GET", "POST"))
+def pin_add():
+    user_id = session.get('user_id')
+
+    if user_id is None:
+        flash("Not logged in!")
+        return redirect(url_for("auth.login"))
+
+    if request.method == 'POST':
+        error = None
+
+        longitude = request.form['longitude']
+        latitude = request.form['latitude']
+        pin_name = request.form['pin_name']
+
+        if not longitude:
+            error = "Longitude is required!"
+        if not latitude:
+            error = "Latitude is required!"
+        if not pin_name:
+            error = "Pin name is required!"
+
+        if error is None:
+            try:
+                db = get_db()
+
+                longitude = float(longitude)
+                latitude = float(latitude)
+
+                if longitude > 180:
+                    longitude = 180
+                elif longitude < -180:
+                    longitude = -180
+                if latitude > 90:
+                    latitude = 90
+                elif latitude < -90:
+                    latitude = -90
+                
+                db.execute(
+                    "INSERT INTO Pins (userID, long, lat, pinName) VALUES (?, ?, ?, ?)",
+                    (user_id, longitude, latitude, pin_name,),
+                )
+                db.commit()
+            except TypeError as e:
+                error = "These coordinates aren't numbers!!!"
+        
+        flash(error)
+
+    return render_template("pins/add.html")
+
+
+@bp.route("/get-all")
+def get_all():
+    db = get_db()
+    pins = db.execute(
+        'SELECT * FROM Pins'
+    ).fetchall()
+    out = {"result": []}
+    for pin in pins:
+        out["result"].append({field: value for field, value in zip(pin.keys(), pin)})
+    return out
+    

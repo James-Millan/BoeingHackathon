@@ -79,8 +79,6 @@ def user_edit():
     elif request.method == "POST":
         content = request.form['content']
 
-        print(content)
-
         db.execute(
             "UPDATE Users SET content = ? WHERE id = ?", (content, user_id,)
         )

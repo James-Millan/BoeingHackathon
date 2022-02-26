@@ -35,7 +35,8 @@ def register():
             else:
                 return redirect(url_for("auth.login"))
 
-        flash(error)
+        if error is not None:
+            flash(error)
 
     return render_template('auth/register.html')
 

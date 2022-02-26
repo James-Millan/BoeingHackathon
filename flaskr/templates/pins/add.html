@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Add Pin{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="flash">{{ message }}</div>
+{% endfor %}
+
+<p>Adding a pin!</p>
+
+<form action="{{ url_for('pins.pin_add') }}" method="post">
+    <label for="longitude">Longitude</label>
+    <input type="number" id="longitude" name="longitude" />
+    <label for="latitude">Latitude</label>
+    <input type="number" id="latitude" name="latitude" />
+    <label for="pin_name">Pin Name</label>
+    <input type="text" id="pin_name" name="pin_name" />
+    <input type="submit" />
+</form>
+{% endblock %}
