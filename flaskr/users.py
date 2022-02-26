@@ -9,7 +9,6 @@ from flaskr.db import get_db
 
 bp = Blueprint("users", __name__, url_prefix="/")
 
-
 @bp.route("/user/id/<int:uid>")
 def user_view_id(uid: int):
     db = get_db()
@@ -42,7 +41,6 @@ def user_view_name(uname: str):
     
     if error is not None:
         flash(error)
-
     return render_template("users/user.html", user=user)
 
 

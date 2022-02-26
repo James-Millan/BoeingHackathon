@@ -27,8 +27,11 @@ def create_app(test_config=None):
     # a simple page that says hello
     @app.route('/')
     def index():
-        return flask.render_template('base.html')
+        return flask.render_template('index.html')
 
+    @app.route('/map')
+    def map():
+        return flask.render_template('map.html')
 
     from . import db
     db.init_app(app)
