@@ -30,5 +30,8 @@ def create_app(test_config=None):
         return flask.render_template('base.html')
     from . import db
     db.init_app(app)
+    
+    from . import auth
+    app.register_blueprint(auth.bp)
 
     return app
