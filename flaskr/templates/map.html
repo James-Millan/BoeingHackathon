@@ -100,7 +100,7 @@
                 case 'resolution':
                     var getStyle = new ol.style.Style({
                         image: new ol.style.Icon({
-                            scale: 1.2*(Math.log(e.oldValue))/Math.log(e.oldValue*10),
+                            scale: 1.3*(Math.log(e.oldValue)/Math.log(e.oldValue)),
                             anchor: [0.5, 1],
                             src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
                         })
