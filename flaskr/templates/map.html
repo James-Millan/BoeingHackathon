@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/css/ol.css" type="text/css">
+    <style>
+        .map {
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/build/ol.js"></script>
+    <title>OpenLayers example</title>
+</head>
+
+<body>
+    <h2>My Map</h2>
+    <div id="map" class="map"></div>
+    <p id="demo"></p>
+    <script type="text/javascript">
+
+        var map = new ol.Map({
+            target: 'map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([37.41, 8.82]),
+                zoom: 4
+            })
+        });
+        var markers = new ol.layer.Vector({
+            source: new ol.source.Vector(),
+            style: new ol.style.Style({
+                image: new ol.style.Icon({
+                    anchor: [0.5, 1],
+                    src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
+                })
+            })
+        });
+        map.addLayer(markers);
+
+        var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
+        markers.getSource().addFeature(marker);
+        map.on('click', function (evt) {
+            console.info(evt.pixel);
+            console.info(map.getPixelFromCoordinate(evt.coordinate));
+            console.info(ol.proj.toLonLat(evt.coordinate));
+            var coords = ol.proj.toLonLat(evt.coordinate);
+            var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
+            markers.getSource().addFeature(marker2);
+        });
+    </script>
+</body>
