@@ -25,7 +25,7 @@ def user_view_id(uid: int):
     if error is not None:
         flash(error)
 
-    return render_template("user.html", user=user)
+    return render_template("users/user.html", user=user)
 
 
 @bp.route("/user/<string:uname>")
@@ -43,4 +43,21 @@ def user_view_name(uname: str):
     if error is not None:
         flash(error)
 
-    return render_template("user.html", user=user)
+    return render_template("users/user.html", user=user)
+
+
+@bp.route("/user/edit", methods=("GET", "POST"))
+def user_edit_view():
+    user_id = session.get('user_id')
+
+    if user_id is None:
+        flash("Not logged in!")
+        return render_template("index.html")
+
+    if request.method == "GET":
+        user = get_db().execute(
+            'SELECT * FROM Users WHERE id = ?', (user_id,)
+        ).fetchone()
+
+        return render_template("users/edit.html", user=user)
+
