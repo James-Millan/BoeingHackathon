@@ -105,13 +105,15 @@ def get_all():
         out["result"].append({field: value for field, value in zip(pin.keys(), pin)})
     return out
 
-@bp.route("/get", methods=["GET", "POST"])
-def get_single(lat, long):
+@bp.route("/get", methods=["POST"])
+def get_single():
+    lat = request.lat
+    long = request.long
     db = get_db()
     pins = db.execute(
         "SELECT * FROM pins WHERE long = ? AND lat = ?", (lat, long)
     ).fetchall()
-    return "test"
+    return json.dumps({'status':'OK', 'data': pins })
 
 
 

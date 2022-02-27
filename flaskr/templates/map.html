@@ -62,7 +62,7 @@
           <!--dynamically allocate these from database wrap this in an if for if the content is empty only show the form.
           -->
           <div id="content-description">
-              <h2 id="content-heading">?</h2>
+              <h2 id="heading"></h2>
               <p id="content-text">Example description of some kind of place.</p>
           </div>
           <div id="comments">
@@ -168,6 +168,21 @@
             var coords = ol.proj.toLonLat(evt.coordinate);
             let lat = document.getElementById('lat');
             let long = document.getElementById('long');
+            $(function(){
+		var lat = coords[0];
+		var long = coords[1];
+		$.ajax({
+			url: '/get',
+			data: {lat: lat, long: long},
+			type: 'POST',
+			success: function(response){
+				document.getElementById("content-text").innerHTML = response;
+			},
+			error: function(error){
+				console.log(error);
+			}
+    	});
+    });
             lat.setAttribute('value', coords[0]);
             long.setAttribute('value', coords[1]);
             var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
