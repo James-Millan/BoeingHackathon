@@ -64,7 +64,6 @@
     </ul>
 </nav>
 {% block content %}
-<button onclick="changeMap()">Click</button>
 <div id="map" class="map"></div>
 <p id="demo"></p>
 
@@ -172,20 +171,14 @@
         return false;
     };
     //the map
-    //realistic map
-    realMap=        new ol.layer.Group({
-    layers:[
-          new ol.layer.Tile({
-            source: new ol.source.OSM()
-          })
-        ],})
-    //colour map
-    colourMap = new ol.layer.Group({
-    layers:[geoLayer]})
     var mapInt = 0;
     var map = new ol.Map({
         target: 'map',
-        layers: colourMap,
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })
+        ],
         overlays: [overlay, overlay2],
         target: 'map',
         view: new ol.View({
@@ -231,6 +224,7 @@
         } catch (error) {
             //sometimes the data doesn't have the geograpgical_coordinates field so will fail, but we don't care, so just ignore it
         }
+    }
         map.on('click', function (evt) {
             var coords = ol.proj.toLonLat(evt.coordinate);
             let lat = document.getElementById('lat');
@@ -266,11 +260,6 @@
         /**
          * Add a click handler to the map to render the popup.
          */
-        map.on('singleclick', function (evt) {
-          const coordinate = evt.coordinate;
-          overlay.setPosition(coordinate);
-
-        });
 
     closer.onclick = function () {
         overlay.setPosition(undefined);
@@ -301,10 +290,10 @@
                     document.getElementById('markerDescription').innerHTML = feature.description
                     console.log(feature.data);
                 }
-            }
-            else {
+                else {
                 const coordinate = evt.coordinate;
                 overlay.setPosition(coordinate);
+            }
             }
         }
         catch (error) {
@@ -312,17 +301,6 @@
         }
     });
 
-    function changeMap(){
-        if (mapInt == 0){
-            map.setLayerGroup(realMap);
-            mapInt = 1
-        }
-        else{
-            map.setLayerGroup(colourMap);
-            mapInt = 0
-        }
-    }
-    }
 
 </script>
 
