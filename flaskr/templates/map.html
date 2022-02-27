@@ -39,6 +39,11 @@
     .ol-popup-closer:after {
         content: "✖";
     }
+
+    .scroll{
+        max-height: 150px;
+        overflow-y:scroll;
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/build/ol.js"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='data.json')}}"></script>
@@ -65,7 +70,12 @@
 
 <!--for the marker name on click-->
 <div id="markerPopup" class="ol-popup">
+    <div class="scroll">
+    <p>Place:</p>
     <p id="markerName"></p>
+    <p>Description:</p>
+    <p id="markerDescription"></p>
+</div>
 </div>
 
 <div id="popup" class="ol-popup">
@@ -209,7 +219,8 @@
         try {
             //for each of the places in the json data add a marker
             marker = new ol.Feature({ geometry: new ol.geom.Point(ol.proj.fromLonLat([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])) })
-            marker.data = mydata[i].fields.name_en;
+            marker.name = mydata[i].fields.name_en;
+            marker.description = mydata[i].fields.short_description_en;
             arrMarkers.push(marker);
             markersStatic.getSource().addFeature(marker);
             coordinates.push([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])
@@ -271,7 +282,8 @@
                 if (typeof (coordinates2) == 'object' && typeof (coordinates2[0]) == 'number') { //the format that the markers are in
                     const coordinate = evt.coordinate;
                     overlay2.setPosition(coordinate);
-                    document.getElementById('markerName').innerHTML = feature.data
+                    document.getElementById('markerName').innerHTML = feature.name
+                    document.getElementById('markerDescription').innerHTML = feature.description
                     console.log(feature.data);
                 }
             }
