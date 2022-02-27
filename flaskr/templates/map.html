@@ -59,43 +59,41 @@
     </ul>
 </nav>
 {% block content %}
-    <div id="map" class="map"></div>
-    <p id="demo"></p>
-    <div id="popup" class="ol-popup">
-        <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-      <div id="popup-content" >
-          <!--dynamically allocate these from database wrap this in an if for if the content is empty only show the form.
+<div id="map" class="map"></div>
+<p id="demo"></p>
+
+<div id="markerPopup" class="ol-popup">
+    <p id="markerName"></p>
+</div>
+
+<div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content">
+        <!--dynamically allocate these from database wrap this in an if for if the content is empty only show the form.
           -->
-          <div id="content-description">
-              <h2 id="heading"></h2>
-              <p id="content-text">Example description of some kind of place.</p>
-          </div>
-          <div id="comments">
-              <ul class="hiddenBullet">
-                  <!--dynamic allocation-->
-                  <li>comment 1</li>
-                  <li>comment 2</li>
-                  <li>comment 3</li>
-              </ul>
-          </div>
-          <form id="submission" method="post" action="{{ url_for('pins.pin_add') }}">
-                <label for="Name">Place</label><br>
-                <input type="text" id="Name" name="Name"><br>
-                <label for="desc">Description</label><br>
-                <input type="text" id="desc" name="desc">
-                <label for="lat" class="hidden">lat</label><br>
-                <input type="text" id="lat" class="hidden" name="lat"><br>
-                <label for="long" class="hidden">long</label><br>
-                <input type="text" class="hidden" id="long" name="long">
-                <input type="submit" value="submit">
-          </form>
-      </div>
+        <div id="content-description">
+            <h2 id="content-heading">Example Heading</h2>
+            <p id="content-text">Example description of some kind of place.</p>
+        </div>
+        <div id="comments">
+            <ul class="hiddenBullet">
+                <!--dynamic allocation-->
+                <li>comment 1</li>
+                <li>comment 2</li>
+                <li>comment 3</li>
+            </ul>
+        </div>
+        <form id="submission">
+            <label for="Name">Place</label><br>
+            <input type="text" id="Name" name="Name"><br>
+            <label for="desc">Description</label><br>
+            <input type="text" id="desc" name="desc">
+            <input type="submit" value="submit">
+        </form>
     </div>
 </div>
 
-    <script type="text/javascript">
-        $SCRIPT_ROOT = {{ request.script_root|tojson }};
-
+<script type="text/javascript">
 
     /**
     * Elements that make up the popup.
@@ -217,55 +215,20 @@
                         src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
                     })
                 })
-            })
-        });
-        map.addLayer(markers);
+                markerDynamic.setStyle(getStyle);
+                markersStatic.setStyle(getStyle);
+                break;
+        }
+    });
 
-        var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
+    const key = 'Get your own API key at https://www.maptiler.com/cloud/';
+    const attributions =
+        '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> ' +
+        '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
 
-        markers.getSource().addFeature(marker);
-
-        map.on('click', function (evt) {
-            console.info(evt.pixel);
-            console.info(map.getPixelFromCoordinate(evt.coordinate));
-            console.info(ol.proj.toLonLat(evt.coordinate));
-            var coords = ol.proj.toLonLat(evt.coordinate);
-            let lat = document.getElementById('lat');
-            let long = document.getElementById('long');
-            $(function(){
-        		var lat = coords[0];
-        		var long = coords[1];
-        		$.ajax({
-        			url: '/get',
-        			data: {lat: lat, long: long},
-        			type: 'POST',
-        			success: function(response){
-        				document.getElementById("content-text").innerHTML = response;
-        			},
-        			error: function(error){
-        				console.log(error);
-        			}
-            	});
-            });
-            lat.setAttribute('value', coords[0]);
-            long.setAttribute('value', coords[1]);
-            var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
-            markers.getSource().addFeature(marker2);
-        });
-
-        const key = 'Get your own API key at https://www.maptiler.com/cloud/';
-        const attributions =
-          '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> ' +
-          '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
-
-        /**
-         * Add a click handler to the map to render the popup.
-         */
-        map.on('singleclick', function (evt) {
-          const coordinate = evt.coordinate;
-          overlay.setPosition(coordinate);
-
-        });
+    /**
+     * Add a click handler to the map to render the popup.
+     */
 
     closer.onclick = function () {
         overlay.setPosition(undefined);
