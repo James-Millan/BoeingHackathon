@@ -87,6 +87,13 @@
 
     <script type="text/javascript">
 
+        function EuclideanDistance(coordinateOne, coordinateTwo){
+        const xdiffSq = Math.pow(coordinateOne[0] - coordinateTwo[0], 2); 
+        const ydiffSq = Math.pow(coordinateOne[1] - coordinateTwo[1], 2);
+        const result = Math.sqrt(xdiffSq + ydiffSq)
+        return result.toFixed(2);
+}
+
          /**
          * Elements that make up the popup.
          */
@@ -165,24 +172,71 @@
 
 
         var mydata = data;
-        var coordinates = [];
+        window.coordinates = [];
         for (let i = 0; i <= mydata.length; i++) {
             try {
                 var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])));
                 markersStatic.getSource().addFeature(marker);
-                coordinates.push([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])
+                window.coordinates.push([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])
             } catch (error) {
                 //ignore
             }
         }
+
+        console.log(window.coordinates);
+
+    map.on('click', function(e){
+        
+    const coordinatesOfClick = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+    console.log("Current coordinate is: " + coordinatesOfClick);
+
+    var nearestCoordinate = window.coordinates[0];
+
+    var minDistance = parseInt(EuclideanDistance(coordinatesOfClick, window.coordinates[0]));
+    console.log("Current minimum distance is " + minDistance);
+
+    for(let i = 0; i < window.coordinates.length; i++){
+        var findDistance = parseInt(EuclideanDistance(coordinatesOfClick, window.coordinates[i]));
+        console.log("Loop " + i + " => findDistance is " + findDistance + " and minDistance is " + minDistance);
+        if(findDistance < minDistance){
+            minDistance = findDistance;
+            console.log("New minimum distance is " + minDistance);
+            nearestCoordinate = window.coordinates[i];
+            console.log("New nearest coordinate is " + nearestCoordinate);
+        }
+    }
+    
+    var coordinates = [coordinatesOfClick, nearestCoordinate]; 
+    console.log("Going to draw a line between " + coordinatesOfClick + " and " + nearestCoordinate);
+    const lineString = new ol.geom.LineString(coordinates);
+    lineString.transform('EPSG:4326', 'EPSG:3857');
+
+    var layerLines = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: [new ol.Feature({
+                geometry: lineString,
+                name: 'Line'
+            })]
+        }),
+        style: new ol.style.Style({
+            stroke: new ol.style.Stroke({
+              color: 'red',
+              width: 3
+            })
+          })
+    });
+
+    map.addLayer(layerLines);
+    })
+
         var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
         markersStatic.getSource().addFeature(marker);
-        map.on('click', function (evt) {
-            var coords = ol.proj.toLonLat(evt.coordinate);
-            var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
-            markerDynamic.getSource().addFeature(marker2);
+        // map.on('click', function (evt) {
+        //     var coords = ol.proj.toLonLat(evt.coordinate);
+        //     var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
+        //     markerDynamic.getSource().addFeature(marker2);
 
-        });
+        // });
         map.getView().on('propertychange', function (e) {
             switch (e.key) {
                 case 'resolution':
