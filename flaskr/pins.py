@@ -105,15 +105,15 @@ def get_all():
         out["result"].append({field: value for field, value in zip(pin.keys(), pin)})
     return out
 
-#@bp.route("/get")
-#def get_single(lat, long):
- #   pins = get_all()
-  #  print(pins)
-   # # pins.lookup(lat) INTERSECTION pins.lookup(long) > 0
-    #if lat in pins['result'] & long in pins['result']:
-     #   return True
-   # else:
-    #    return False
+@bp.route("/map", methods=['POST'])
+def get_single(lat, long):
+    db = get_db()
+    pins = db.execute(
+        "SELECT * FROM pins WHERE long = ? AND lat = ?", (lat, long)
+    ).fetchall()
+    contributions = db.execute()
+    render_template('map.html', data=pins)
+
 
 
 
