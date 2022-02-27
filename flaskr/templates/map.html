@@ -100,7 +100,7 @@
         /**
          * Create an overlay to anchor the popup to the map.
          */
-         const style = new ol.style.Style({
+         var style = new ol.style.Style({
             fill: new ol.style.Fill({
             color: "#eeeeee"
             })
@@ -168,21 +168,6 @@
             var coords = ol.proj.toLonLat(evt.coordinate);
             let lat = document.getElementById('lat');
             let long = document.getElementById('long');
-            $(function(){
-		var lat = coords[0];
-		var long = coords[1];
-		$.ajax({
-			url: '/get',
-			data: {lat: lat, long: long},
-			type: 'POST',
-			success: function(response){
-				document.getElementById("content-text").innerHTML = response;
-			},
-			error: function(error){
-				console.log(error);
-			}
-    	});
-    });
             lat.setAttribute('value', coords[0]);
             long.setAttribute('value', coords[1]);
             var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
@@ -211,6 +196,5 @@
     </script>
 
     <div id='js-map' class='map'></div>
-    <script src='{{ url_for("static", filename="main.js") }}'></script>
     <script src='{{ url_for("static", filename="libs/v6.12.0-dist/ol.js") }}'></script>
 {% endblock %}
