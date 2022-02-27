@@ -53,7 +53,7 @@ def user_view_name(uname: str):
         'SELECT id, username, password, perms, content FROM Users WHERE username = ?', (uname,)
     ).fetchone()
 
-    print(user["content"])
+    uid = user["id"]
 
     if user is None:
         error = "User doesn't exist!"
