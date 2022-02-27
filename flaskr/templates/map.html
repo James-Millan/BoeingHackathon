@@ -56,14 +56,13 @@
 {% block content %}
     <div id="map" class="map"></div>
     <p id="demo"></p>
-    <form action="/map" class="hidden" id="render"></form>
     <div id="popup" class="ol-popup">
         <a href="#" id="popup-closer" class="ol-popup-closer"></a>
       <div id="popup-content" >
           <!--dynamically allocate these from database wrap this in an if for if the content is empty only show the form.
           -->
           <div id="content-description">
-              <h2 id="content-heading">{{Data}}</h2>
+              <h2 id="content-heading">?</h2>
               <p id="content-text">Example description of some kind of place.</p>
           </div>
           <div id="comments">
@@ -75,7 +74,7 @@
               </ul>
           </div>
           <form id="submission" method="post" action="{{ url_for('pins.pin_add') }}">
-                <label for="Name">{{Place}}</label><br>
+                <label for="Name">Place</label><br>
                 <input type="text" id="Name" name="Name"><br>
                 <label for="desc">Description</label><br>
                 <input type="text" id="desc" name="desc">
@@ -89,6 +88,7 @@
     </div>
 
     <script type="text/javascript">
+        $SCRIPT_ROOT = {{ request.script_root|tojson }};
 
          /**
          * Elements that make up the popup.
@@ -170,10 +170,6 @@
             let long = document.getElementById('long');
             lat.setAttribute('value', coords[0]);
             long.setAttribute('value', coords[1]);
-            let form = document.getElementById('render');
-            form.setAttribute('lat', coords[0]);
-            form.setAttribute('long', coords[1]);
-            form.submit();
             var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
             markers.getSource().addFeature(marker2);
         });

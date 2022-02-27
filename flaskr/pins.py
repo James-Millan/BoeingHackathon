@@ -105,14 +105,14 @@ def get_all():
         out["result"].append({field: value for field, value in zip(pin.keys(), pin)})
     return out
 
-@bp.route("/map", methods=['POST'])
+@bp.route("/get", methods=["GET", "POST"])
 def get_single(lat, long):
     db = get_db()
     pins = db.execute(
         "SELECT * FROM pins WHERE long = ? AND lat = ?", (lat, long)
     ).fetchall()
-    contributions = db.execute()
-    render_template('map.html', data=pins)
+    return "test"
+
 
 
 

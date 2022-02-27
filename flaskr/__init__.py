@@ -33,6 +33,8 @@ def create_app(test_config=None):
     def map():
         return flask.render_template('map.html')
 
+
+
     from . import db
     db.init_app(app)
     
