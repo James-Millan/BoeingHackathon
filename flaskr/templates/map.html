@@ -70,6 +70,7 @@
 
 <!--for the marker name on click-->
 <div id="markerPopup" class="ol-popup">
+    <a href="#" id="marker-popup-closer" class="ol-popup-closer"></a>
     <div class="scroll">
     <p>Place:</p>
     <p id="markerName"></p>
@@ -114,6 +115,7 @@
     const content = document.getElementById('popup-content');
     const closer = document.getElementById('popup-closer');
     const markerContainer = document.getElementById('markerPopup');
+    const markercloser = document.getElementById('marker-popup-closer');
 
     /**
      * Create an overlay to anchor the popup to the map.
@@ -261,6 +263,12 @@
         overlay.setPosition(undefined);
         closer.blur();
         return false;
+    };
+        markercloser.onclick = function () {
+        overlay2.setPosition(undefined);
+        markercloser.blur();
+        return false;
+
     };
     for (i = 0; i < arrMarkers.length; i++) {
         arrMarkers[i].on('singleclick', function (evt) {
