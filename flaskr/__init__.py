@@ -41,5 +41,8 @@ def create_app(test_config=None):
 
     from . import users
     app.register_blueprint(users.bp)
+    
+    from . import pins
+    app.register_blueprint(pins.bp)
 
     return app
