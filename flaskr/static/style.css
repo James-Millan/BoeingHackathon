@@ -5,6 +5,10 @@ font-family: 'IBM Plex Sans', sans-serif;
 .hiddenBullet   {
    list-style: none;
 }
+.heading    {
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
 
 .login-label    {
   background-color: #04AA6D;
@@ -27,4 +31,12 @@ label:after { content: ": " }
 
 .noDeco {
     text-decoration: none;
+}
+.right  {
+    top: 0;
+    text-align: right;
+}
+
+.hidden {
+    display: none;
 }
