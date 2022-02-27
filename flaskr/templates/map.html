@@ -1,44 +1,48 @@
 {% extends 'base.html' %}
 {% block header %}
-    <meta charset="utf-8">
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/css/ol.css" type="text/css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        .map {
-            height: 600px;
-            width: 100%;
-        }
-        #popup{
-             border-radius: 5px;
-            border: 1px solid grey;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 2px;
-        }
-        .ol-popup {
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/css/ol.css"
+    type="text/css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+    .map {
+        height: 600px;
+        width: 100%;
+    }
+
+    #popup {
+        border-radius: 5px;
+        border: 1px solid grey;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 2px;
+    }
+
+    .ol-popup {
         position: absolute;
         background-color: white;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
         padding: 15px;
         border-radius: 10px;
         border: 1px solid #cccccc;
         bottom: 12px;
         left: -50px;
         min-width: 280px;
-      }
-      .ol-popup-closer {
+    }
+
+    .ol-popup-closer {
         text-decoration: none;
         position: absolute;
         top: 2px;
         right: 8px;
-      }
-      .ol-popup-closer:after {
+    }
+
+    .ol-popup-closer:after {
         content: "✖";
-      }
-    </style>
-    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/build/ol.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='data.json')}}"></script>
-    <title>OpenLayers example</title>
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.12.0/build/ol.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='data.json')}}"></script>
+<title>OpenLayers example</title>
 {% endblock %}
 <nav>
     <h1 class="heading"><a class="noDeco" href="/">DynaMap</a></h1>
@@ -55,171 +59,219 @@
     </ul>
 </nav>
 {% block content %}
-    <div id="map" class="map"></div>
-    <p id="demo"></p>
+<div id="map" class="map"></div>
+<p id="demo"></p>
 
-    <div id="popup" class="ol-popup">
-        <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-      <div id="popup-content" >
-          <!--dynamically allocate these from database wrap this in an if for if the content is empty only show the form.
+<div id="markerPopup" class="ol-popup">
+    <p id="markerName"></p>
+</div>
+
+<div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content">
+        <!--dynamically allocate these from database wrap this in an if for if the content is empty only show the form.
           -->
-          <div id="content-description">
-              <h2 id="content-heading">Example Heading</h2>
-              <p id="content-text">Example description of some kind of place.</p>
-          </div>
-          <div id="comments">
-              <ul class="hiddenBullet">
-                  <!--dynamic allocation-->
-                  <li>comment 1</li>
-                  <li>comment 2</li>
-                  <li>comment 3</li>
-              </ul>
-          </div>
-          <form id="submission">
-                <label for="Name">Place</label><br>
-                <input type="text" id="Name" name="Name"><br>
-                <label for="desc">Description</label><br>
-                <input type="text" id="desc" name="desc">
-                <input type="submit" value="submit">
-          </form>
-      </div>
+        <div id="content-description">
+            <h2 id="content-heading">Example Heading</h2>
+            <p id="content-text">Example description of some kind of place.</p>
+        </div>
+        <div id="comments">
+            <ul class="hiddenBullet">
+                <!--dynamic allocation-->
+                <li>comment 1</li>
+                <li>comment 2</li>
+                <li>comment 3</li>
+            </ul>
+        </div>
+        <form id="submission">
+            <label for="Name">Place</label><br>
+            <input type="text" id="Name" name="Name"><br>
+            <label for="desc">Description</label><br>
+            <input type="text" id="desc" name="desc">
+            <input type="submit" value="submit">
+        </form>
     </div>
+</div>
 
-    <script type="text/javascript">
+<script type="text/javascript">
 
-         /**
-         * Elements that make up the popup.
-         */
-        const container = document.getElementById('popup');
-        const content = document.getElementById('popup-content');
-        const closer = document.getElementById('popup-closer');
+    /**
+    * Elements that make up the popup.
+    */
+    const container = document.getElementById('popup');
+    const content = document.getElementById('popup-content');
+    const closer = document.getElementById('popup-closer');
+    const markerContainer = document.getElementById('markerPopup');
 
-        /**
-         * Create an overlay to anchor the popup to the map.
-         */
-         const style = new ol.style.Style({
-            fill: new ol.style.Fill({
+    /**
+     * Create an overlay to anchor the popup to the map.
+     */
+    const style = new ol.style.Style({
+        fill: new ol.style.Fill({
             color: "#eeeeee"
-            })
-        });
+        })
+    });
 
-        const geoLayer = new ol.layer.Vector({
-            background: "#000075",
-            source: new ol.source.Vector({
+    const geoLayer = new ol.layer.Vector({
+        background: "#000075",
+        source: new ol.source.Vector({
             url: "https://openlayers.org/data/vector/ecoregions.json",
             format: new ol.format.GeoJSON()
-            }),
-            style: function (feature) {
+        }),
+        style: function (feature) {
             //climate = BIO
             //environment status = NNH
             //
             const color = feature.get("COLOR_BIO") || "#eeeeee";
             style.getFill().setColor(color);
             return style;
-            }
-        });
-
-        const overlay = new ol.Overlay({
-          element: container,
-          autoPan: {
-            animation: {
-              duration: 250,
-            },
-          },
-        });
-        window.unload = function () {
-          overlay.setPosition(undefined);
-          closer.blur();
-          return false;
-        };
-
-        var map = new ol.Map({
-            target: 'map',
-            layers: [geoLayer,],
-            overlays: [overlay],
-            target: 'map',
-            view: new ol.View({
-                center: ol.proj.fromLonLat([37.41, 8.82]),
-                zoom: 2
-            })
-        });
-
-        var getStyle = new ol.style.Style({
-            image: new ol.style.Icon({
-                scale: 1.3,
-                anchor: [0.5, 1],
-                src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
-            })
-        })
-        var markersStatic = new ol.layer.Vector({
-            source: new ol.source.Vector(),
-            style: function () { return getStyle; },
-        });
-        var markerDynamic = new ol.layer.Vector({
-            source: new ol.source.Vector(),
-            style: function () { return getStyle; },
-
-        });
-        map.addLayer(markersStatic);
-        map.addLayer(markerDynamic);
-
-
-        var mydata = data;
-        var coordinates = [];
-        for (let i = 0; i <= mydata.length; i++) {
-            try {
-                var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])));
-                markersStatic.getSource().addFeature(marker);
-                coordinates.push([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])
-            } catch (error) {
-                //ignore
-            }
         }
-        var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
-        markersStatic.getSource().addFeature(marker);
-        map.on('click', function (evt) {
-            var coords = ol.proj.toLonLat(evt.coordinate);
-            var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
-            markerDynamic.getSource().addFeature(marker2);
+    });
 
-        });
-        map.getView().on('propertychange', function (e) {
-            switch (e.key) {
-                case 'resolution':
-                    var getStyle = new ol.style.Style({
-                        image: new ol.style.Icon({
-                            scale: 1.8*(Math.log(e.oldValue*8)/Math.log(e.oldValue*20)), //will go a bit crazy at extreme zoom
-                            anchor: [0.5, 1],
-                            src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
-                        })
+    const overlay = new ol.Overlay({
+        element: container,
+        autoPan: {
+            animation: {
+                duration: 250,
+            },
+        },
+    });
+    window.unload = function () {
+        overlay.setPosition(undefined);
+        closer.blur();
+        return false;
+    };
+
+    const overlay2 = new ol.Overlay({
+        element: markerContainer,
+        autoPan: {
+            animation: {
+                duration: 250,
+            },
+        },
+    });
+    window.unload = function () {
+        overlay2.setPosition(undefined);
+        closer.blur();
+        return false;
+    };
+
+    var map = new ol.Map({
+        target: 'map',
+        layers: [geoLayer,],
+        overlays: [overlay, overlay2],
+        target: 'map',
+        view: new ol.View({
+            center: ol.proj.fromLonLat([37.41, 8.82]),
+            zoom: 2
+        })
+    });
+
+    var getStyle = new ol.style.Style({
+        image: new ol.style.Icon({
+            scale: 1.3,
+            anchor: [0.5, 1],
+            src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
+        })
+    })
+    var markersStatic = new ol.layer.Vector({
+        //type:Point,
+        source: new ol.source.Vector(),
+        style: function () { return getStyle; },
+    });
+    var markerDynamic = new ol.layer.Vector({
+        //type:Point,
+        source: new ol.source.Vector(),
+        style: function () { return getStyle; },
+
+    });
+    map.addLayer(markersStatic);
+    map.addLayer(markerDynamic);
+
+    arrMarkers = [];
+    var mydata = data;
+    var coordinates = [];
+    for (let i = 0; i <= mydata.length; i++) {
+        try {
+            marker = new ol.Feature({ geometry: new ol.geom.Point(ol.proj.fromLonLat([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])) })
+            marker.data = mydata[i].fields.name_en;
+            arrMarkers.push(marker);
+            markersStatic.getSource().addFeature(marker);
+            coordinates.push([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])
+        } catch (error) {
+            //ignore
+        }
+    }
+    //var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
+    marker = new ol.Feature({ geometry: new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])) })
+
+    map.getView().on('propertychange', function (e) {
+        switch (e.key) {
+            case 'resolution':
+                var getStyle = new ol.style.Style({
+                    image: new ol.style.Icon({
+                        scale: 1.8 * (Math.log(e.oldValue * 8) / Math.log(e.oldValue * 20)), //will go a bit crazy at extreme zoom
+                        anchor: [0.5, 1],
+                        src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
                     })
-                    markerDynamic.setStyle(getStyle);
-                    markersStatic.setStyle(getStyle);
-                    break;
-            }
-        });
+                })
+                markerDynamic.setStyle(getStyle);
+                markersStatic.setStyle(getStyle);
+                break;
+        }
+    });
 
-        const key = 'Get your own API key at https://www.maptiler.com/cloud/';
-        const attributions =
-          '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> ' +
-          '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
+    const key = 'Get your own API key at https://www.maptiler.com/cloud/';
+    const attributions =
+        '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> ' +
+        '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
 
-        /**
-         * Add a click handler to the map to render the popup.
-         */
-        map.on('singleclick', function (evt) {
-          const coordinate = evt.coordinate;
-          overlay.setPosition(coordinate);
-        });
+    /**
+     * Add a click handler to the map to render the popup.
+     */
 
     closer.onclick = function () {
         overlay.setPosition(undefined);
         closer.blur();
         return false;
     };
-    </script>
+    for (i = 0; i < arrMarkers.length; i++) {
+        arrMarkers[i].on('singleclick', function (evt) {
+            console.log(arrMarkers[i].name);
+        }
+        )
+    }
+    map.on('click', function (evt) {
+        try {
+            var feature = map.forEachFeatureAtPixel(evt.pixel,
+                function (feature) {
+                    return feature;
+                });
+            if (feature) {
+                var coordinates2 = feature.getGeometry().getCoordinates();
+                console.log(typeof (coordinates2))
+                console.log(typeof (coordinates2[0]))
+                if (typeof (coordinates2) == 'object' && typeof (coordinates2[0]) == 'number') {
+                    const coordinate = evt.coordinate;
+                    overlay2.setPosition(coordinate);
+                    document.getElementById('markerName').innerHTML = feature.data
+                    console.log(feature.data);
+                }
+            }
+            else {
+                const coordinate = evt.coordinate;
+                overlay.setPosition(coordinate);
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+    });
 
-    <div id='js-map' class='map'></div>
-    <script src='{{ url_for("static", filename="main.js") }}'></script>
-    <script src='{{ url_for("static", filename="libs/v6.12.0-dist/ol.js") }}'></script>
+
+</script>
+
+<div id='js-map' class='map'></div>
+<script src='{{ url_for("static", filename="main.js") }}'></script>
+<script src='{{ url_for("static", filename="libs/v6.12.0-dist/ol.js") }}'></script>
 {% endblock %}
