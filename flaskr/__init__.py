@@ -33,6 +33,11 @@ def create_app(test_config=None):
     def map():
         return flask.render_template('map.html')
 
+    @app.route('/overlay')
+    def overlay():
+        return flask.render_template('overlay.html')
+
+
     from . import db
     db.init_app(app)
     

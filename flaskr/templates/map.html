@@ -96,13 +96,17 @@
                 <li>comment 3</li>
             </ul>
         </div>
-        <form id="submission">
+        <form id="submission" method="post" action="{{ url_for('pins.pin_add') }}">
             <label for="Name">Place</label><br>
             <input type="text" id="Name" name="Name"><br>
             <label for="desc">Description</label><br>
             <input type="text" id="desc" name="desc">
+            <label for="lat" class="hidden">lat</label><br>
+            <input type="text" id="lat" class="hidden" name="lat"><br>
+            <label for="long" class="hidden">long</label><br>
+            <input type="text" class="hidden" id="long" name="long">
             <input type="submit" value="submit">
-        </form>
+      </form>
     </div>
 </div>
 
@@ -117,11 +121,11 @@
     const markerContainer = document.getElementById('markerPopup');
     const markercloser = document.getElementById('marker-popup-closer');
 
-    /**
-     * Create an overlay to anchor the popup to the map.
-     */
-    const style = new ol.style.Style({
-        fill: new ol.style.Fill({
+        /**
+         * Create an overlay to anchor the popup to the map.
+         */
+         var style = new ol.style.Style({
+            fill: new ol.style.Fill({
             color: "#eeeeee"
         })
     });
@@ -229,21 +233,27 @@
         } catch (error) {
             //sometimes the data doesn't have the geograpgical_coordinates field so will fail, but we don't care, so just ignore it
         }
-    }
-    //random marker added - Was the first ever marker :o 
-    marker = new ol.Feature({ geometry: new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])) })
+        map.on('click', function (evt) {
+            var coords = ol.proj.toLonLat(evt.coordinate);
+            let lat = document.getElementById('lat');
+            let long = document.getElementById('long');
+            lat.setAttribute('value', coords[0]);
+            long.setAttribute('value', coords[1]);
+            var marker2 = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat(coords)));
+            markerDynamic.getSource().addFeature(marker2);
 
-    //when the map is scrolled change the scale of the markers
-    map.getView().on('propertychange', function (e) {
-        switch (e.key) {
-            case 'resolution':
-                var getStyle = new ol.style.Style({
-                    image: new ol.style.Icon({
-                        scale: 1.8 * (Math.log(e.oldValue * 8) / Math.log(e.oldValue * 20)), //will go a bit crazy at extreme zoom
-                        anchor: [0.5, 1],
-                        src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
+        });
+        //when the map is scrolled change the scale of the markers
+        map.getView().on('propertychange', function (e) {
+            switch (e.key) {
+                case 'resolution':
+                    var getStyle = new ol.style.Style({
+                        image: new ol.style.Icon({
+                            scale: 1.8*(Math.log(e.oldValue*8)/Math.log(e.oldValue*20)), //will go a bit crazy at extreme zoom
+                            anchor: [0.5, 1],
+                            src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
+                        })
                     })
-                })
                 markerDynamic.setStyle(getStyle);
                 markersStatic.setStyle(getStyle);
                 break;
@@ -255,9 +265,14 @@
         '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> ' +
         '<a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
 
-    /**
-     * Add a click handler to the map to render the popup.
-     */
+        /**
+         * Add a click handler to the map to render the popup.
+         */
+        map.on('singleclick', function (evt) {
+          const coordinate = evt.coordinate;
+          overlay.setPosition(coordinate);
+
+        });
 
     closer.onclick = function () {
         overlay.setPosition(undefined);
@@ -315,11 +330,10 @@
             mapInt = 0
         }
     }
-
+    }
 
 </script>
 
-<div id='js-map' class='map'></div>
-<script src='{{ url_for("static", filename="main.js") }}'></script>
-<script src='{{ url_for("static", filename="libs/v6.12.0-dist/ol.js") }}'></script>
+    <div id='js-map' class='map'></div>
+    <script src='{{ url_for("static", filename="libs/v6.12.0-dist/ol.js") }}'></script>
 {% endblock %}
