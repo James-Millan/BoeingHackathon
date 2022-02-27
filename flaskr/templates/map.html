@@ -62,6 +62,7 @@
 <div id="map" class="map"></div>
 <p id="demo"></p>
 
+<!--for the marker name on click-->
 <div id="markerPopup" class="ol-popup">
     <p id="markerName"></p>
 </div>
@@ -155,7 +156,7 @@
         closer.blur();
         return false;
     };
-
+    //the map
     var map = new ol.Map({
         target: 'map',
         layers: [geoLayer,],
@@ -166,7 +167,7 @@
             zoom: 2
         })
     });
-
+    //getStyle as a seperate variable so it can be used dynamically
     var getStyle = new ol.style.Style({
         image: new ol.style.Icon({
             scale: 1.3,
@@ -174,37 +175,40 @@
             src: 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F16%2Fmap-marker-icon.png&f=1&nofb=1'
         })
     })
-    var markersStatic = new ol.layer.Vector({
-        //type:Point,
+    var markersStatic = new ol.layer.Vector({ //all the markers from the db/json
         source: new ol.source.Vector(),
         style: function () { return getStyle; },
     });
-    var markerDynamic = new ol.layer.Vector({
-        //type:Point,
-        source: new ol.source.Vector(),
-        style: function () { return getStyle; },
+    var markerDynamic = new ol.layer.Vector({ //the markers the user adds
+        source: new ol.source.Vector(),       //not really in use currently as the popup
+        style: function () { return getStyle; },//form blocks them spawning
 
     });
+    //adding the layers to the map
     map.addLayer(markersStatic);
     map.addLayer(markerDynamic);
-
+    //an array of all the markers, not in use currently but could be useful for something, not sure what tho
     arrMarkers = [];
+    //getting the json data from the file
     var mydata = data;
+    //instantiate an array which will contain a list of all marker coordinates
     var coordinates = [];
     for (let i = 0; i <= mydata.length; i++) {
         try {
+            //for each of the places in the json data add a marker
             marker = new ol.Feature({ geometry: new ol.geom.Point(ol.proj.fromLonLat([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])) })
             marker.data = mydata[i].fields.name_en;
             arrMarkers.push(marker);
             markersStatic.getSource().addFeature(marker);
             coordinates.push([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])
         } catch (error) {
-            //ignore
+            //sometimes the data doesn't have the geograpgical_coordinates field so will fail, but we don't care, so just ignore it
         }
     }
-    //var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
+    //random marker added - Was the first ever marker :o 
     marker = new ol.Feature({ geometry: new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])) })
 
+    //when the map is scrolled change the scale of the markers
     map.getView().on('propertychange', function (e) {
         switch (e.key) {
             case 'resolution':
@@ -241,6 +245,7 @@
         }
         )
     }
+    //on clicking a feature if its a marker it will display it's name, if its empty space it will open the input form
     map.on('click', function (evt) {
         try {
             var feature = map.forEachFeatureAtPixel(evt.pixel,
@@ -251,7 +256,7 @@
                 var coordinates2 = feature.getGeometry().getCoordinates();
                 console.log(typeof (coordinates2))
                 console.log(typeof (coordinates2[0]))
-                if (typeof (coordinates2) == 'object' && typeof (coordinates2[0]) == 'number') {
+                if (typeof (coordinates2) == 'object' && typeof (coordinates2[0]) == 'number') { //the format that the markers are in
                     const coordinate = evt.coordinate;
                     overlay2.setPosition(coordinate);
                     document.getElementById('markerName').innerHTML = feature.data
