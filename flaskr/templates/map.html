@@ -59,6 +59,7 @@
     </ul>
 </nav>
 {% block content %}
+<button onclick="changeMap()">Click</button>
 <div id="map" class="map"></div>
 <p id="demo"></p>
 
@@ -157,9 +158,20 @@
         return false;
     };
     //the map
+    //realistic map
+    realMap=        new ol.layer.Group({
+    layers:[
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })
+        ],})
+    //colour map
+    colourMap = new ol.layer.Group({
+    layers:[geoLayer]})
+    var mapInt = 0;
     var map = new ol.Map({
         target: 'map',
-        layers: [geoLayer,],
+        layers: colourMap,
         overlays: [overlay, overlay2],
         target: 'map',
         view: new ol.View({
@@ -272,6 +284,17 @@
             console.log(error);
         }
     });
+
+    function changeMap(){
+        if (mapInt == 0){
+            map.setLayerGroup(realMap);
+            mapInt = 1
+        }
+        else{
+            map.setLayerGroup(colourMap);
+            mapInt = 0
+        }
+    }
 
 
 </script>
