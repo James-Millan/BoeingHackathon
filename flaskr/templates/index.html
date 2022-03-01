@@ -1,11 +1,13 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Login Success{% endblock %}</h1>
+  <h1>{% block title %}Welcome{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-  <p>Your login was successful. Welcome to the system!
-     Click <a href="{{ url_for('map') }}">here</a> to view our map system!
+  <p>Welcome to <b>inHeritage</b></p>
+     How modernity affected history.<br>
+     Click <a href="{{ url_for('map') }}">here</a> to view the worlds heritage!
+     Click <a href="{{ url_for('overlay') }}">here</a> to view our dynamic overlay!
   </p>
 {% endblock %}
