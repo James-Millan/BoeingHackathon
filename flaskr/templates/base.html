@@ -14,6 +14,7 @@
 <body>
   <nav>
   <h1 class="heading"><a class="noDeco"  href="/">inHeritage</a></h1>
+    <img src="https://cdn.discordapp.com/attachments/947098727942869024/947449464388481034/logo2.png" alt="Logo" class="logo">
     <ul class="hiddenBullet ">
 
     </ul>
@@ -27,6 +28,8 @@
       <li>Already have an account?<br>
       <a href="{{ url_for('auth.login') }}">Log In</a>
     {% endif %}
+      <li><a href="{{ url_for('map') }}">Map</a></li>
+      <li><a href="{{ url_for('overlay') }}">Overlay</a></li>
   </ul>
 </nav>
 <section class="content">

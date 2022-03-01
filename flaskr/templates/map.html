@@ -57,23 +57,21 @@
 {% block content %}
     <div id="map" class="map"></div>
     <p id="demo"></p>
+<!--for the marker name on click-->
+<div id="markerPopup" class="ol-popup">
+    <div class="scroll">
+        <a href="#" id="marker-popup-closer" class="ol-popup-closer"></a>
+        <p>Place:</p>
+        <p id="markerName"></p>
+        <p>Description:</p>
+        <p id="markerDescription"></p>
+    </div>
+</div>
     <div id="popup" class="ol-popup">
         <a href="#" id="popup-closer" class="ol-popup-closer"></a>
       <div id="popup-content" >
           <!--dynamically allocate these from database wrap this in an if for if the content is empty only show the form.
           -->
-          <div id="content-description">
-              <h2 id="heading"></h2>
-              <p id="content-text">Example description of some kind of place.</p>
-          </div>
-          <div id="comments">
-              <ul class="hiddenBullet">
-                  <!--dynamic allocation-->
-                  <li>comment 1</li>
-                  <li>comment 2</li>
-                  <li>comment 3</li>
-              </ul>
-          </div>
           <form id="submission" method="post" action="{{ url_for('pins.pin_add') }}">
                 <label for="Name">Place</label><br>
                 <input type="text" id="Name" name="Name"><br>
@@ -91,13 +89,20 @@
     <script type="text/javascript">
         $SCRIPT_ROOT = {{ request.script_root|tojson }};
 
+        function EuclideanDistance(coordinateOne, coordinateTwo){
+            const xdiffSq = Math.pow(coordinateOne[0] - coordinateTwo[0], 2);
+            const ydiffSq = Math.pow(coordinateOne[1] - coordinateTwo[1], 2);
+            const result = Math.sqrt(xdiffSq + ydiffSq)
+            return result.toFixed(2);
+        }
          /**
          * Elements that make up the popup.
          */
         const container = document.getElementById('popup');
         const content = document.getElementById('popup-content');
         const closer = document.getElementById('popup-closer');
-
+        const markerContainer = document.getElementById('markerPopup');
+        const markercloser = document.getElementById('marker-popup-closer')
         /**
          * Create an overlay to anchor the popup to the map.
          */
@@ -137,14 +142,29 @@
           return false;
         };
 
+        const overlay2 = new ol.Overlay({
+            element: markerContainer,
+            autoPan: {
+                animation: {
+                    duration: 250,
+                },
+            },
+        });
+
+        window.unload = function () {
+            overlay2.setPosition(undefined);
+            markercloser.blur();
+            return false;
+        };
+
         var map = new ol.Map({
             target: 'map',
             layers: [geoLayer,],
             overlays: [overlay],
             target: 'map',
             view: new ol.View({
-                center: ol.proj.fromLonLat([37.41, 8.82]),
-                zoom: 2
+                center: ol.proj.fromLonLat([-4, 54]),
+                zoom: 5
             })
         });
 
@@ -169,16 +189,64 @@
 
 
         var mydata = data;
-        var coordinates = [];
+        window.coordinates = [];
         for (let i = 0; i <= mydata.length; i++) {
             try {
                 var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])));
+                marker.name = mydata[i].fields['name_en']
+                marker.description = mydata[i].fields['short_description_en']
                 markersStatic.getSource().addFeature(marker);
-                coordinates.push([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])
+
+                window.coordinates.push([mydata[i].fields.geographical_coordinates[1], mydata[i].fields.geographical_coordinates[0]])
             } catch (error) {
                 //ignore
             }
         }
+
+        map.on('click', function(e){
+
+            const coordinatesOfClick = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326');
+            console.log("Current coordinate is: " + coordinatesOfClick);
+
+            var nearestCoordinate = window.coordinates[0];
+
+            var minDistance = parseInt(EuclideanDistance(coordinatesOfClick, window.coordinates[0]));
+            console.log("Current minimum distance is " + minDistance);
+            for(let i = 0; i < window.coordinates.length; i++){
+                var findDistance = parseInt(EuclideanDistance(coordinatesOfClick, window.coordinates[i]));
+                console.log("Loop " + i + " => findDistance is " + findDistance + " and minDistance is " + minDistance);
+                if(findDistance < minDistance){
+                    minDistance = findDistance;
+                    console.log("New minimum distance is " + minDistance);
+                    nearestCoordinate = window.coordinates[i];
+                    console.log("New nearest coordinate is " + nearestCoordinate);
+                }
+            }
+
+
+            var coordinates = [coordinatesOfClick, nearestCoordinate];
+            console.log("Going to draw a line between " + coordinatesOfClick + " and " + nearestCoordinate);
+            const lineString = new ol.geom.LineString(coordinates);
+            lineString.transform('EPSG:4326', 'EPSG:3857');
+
+            var layerLines = new ol.layer.Vector({
+                source: new ol.source.Vector({
+                    features: [new ol.Feature({
+                        geometry: lineString,
+                        name: 'Line'
+                    })]
+                }),
+                style: new ol.style.Style({
+                    stroke: new ol.style.Stroke({
+                        color: 'red',
+                        width: 3
+                    })
+                })
+            });
+
+            map.addLayer(layerLines);
+        })
+
         var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([106.8478695, -6.1568562])));
         markersStatic.getSource().addFeature(marker);
         map.on('click', function (evt) {
@@ -215,10 +283,32 @@
         /**
          * Add a click handler to the map to render the popup.
          */
-        map.on('singleclick', function (evt) {
-          const coordinate = evt.coordinate;
-          overlay.setPosition(coordinate);
-
+        map.on('click', function (evt) {
+            try {
+                var feature = map.forEachFeatureAtPixel(evt.pixel,
+                    function (feature) {
+                        return feature;
+                    });
+                if (feature) {
+                    var coordinates2 = feature.getGeometry().getCoordinates();
+                    console.log(typeof (coordinates2))
+                    console.log(typeof (coordinates2[0]))
+                    if (typeof (coordinates2) == 'object' && typeof (coordinates2[0]) == 'number') { //the format that the markers are in
+                        const coordinate = evt.coordinate;
+                        overlay2.setPosition(coordinate);
+                        document.getElementById('markerName').innerHTML = feature.name
+                        document.getElementById('markerDescription').innerHTML = feature.description
+                        console.log(feature.data);
+                    }
+                    else {
+                        const coordinate = evt.coordinate;
+                        overlay.setPosition(coordinate);
+                    }
+                }
+            }
+            catch (error) {
+                //console.log(error);
+            }
         });
 
     closer.onclick = function () {
